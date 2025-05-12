@@ -14,7 +14,11 @@ const drawer = ref(false)
     ></v-navigation-drawer>
 
     <v-app-bar app dark dense clipped-left color="primary">
-
+      <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
+      <v-avatar tile height="75%" aspect-ratio="1"><v-img src="/icons/icon.png" contain></v-img></v-avatar>
+      <v-toolbar-title class="pr-1">Project Gantt</v-toolbar-title>
+      <v-spacer></v-spacer>
+      <!-- <v-icon :color="contentChanged ? 'red lighten-4' : 'primary'" :title="contentChanged ? 'click to save' : ''" @click="() => contentChanged ? justSave() : null">mdi-record</v-icon> -->
     </v-app-bar>
 
 
