@@ -53,6 +53,11 @@ const currentFile = reactive({
       </v-row>
     </v-snackbar>
     
+    <v-footer app>
+      <v-col class="text-center" cols=12>
+        Powered by <span style="cursor:pointer" @click="openSite('//vuejs.org/')">Vue</span> and <span style="cursor:pointer" @click="openSite('//vuetifyjs.com/')">Vuetify</span>, created by <span style="cursor:pointer" @click="openSite('//ricwtk.github.io')">R.ich.ard</span>
+      </v-col>
+    </v-footer>
     
   </v-app>
   <!-- <div>

@@ -45,13 +45,5 @@ const isSignedIn = ref(true)
     <v-divider></v-divider>
     <v-list nav density="compact">
     </v-list>
-    <v-spacer></v-spacer>
-    <v-list nav density="compact">
-      <v-footer>
-      <v-col class="text-center" cols=12>
-        Powered by <span style="cursor:pointer" @click="openSite('//vuejs.org/')">Vue</span> and <span style="cursor:pointer" @click="openSite('//vuetifyjs.com/')">Vuetify</span>, created by <span style="cursor:pointer" @click="openSite('//ricwtk.github.io')">R.ich.ard</span>
-      </v-col>
-    </v-footer>
-    </v-list>
   </v-navigation-drawer>
 </template>
