@@ -1,8 +1,15 @@
 <script setup>
 // import HelloWorld from './components/HelloWorld.vue'
-import { ref } from 'vue'
+import { reactive, ref } from 'vue'
 import Drawer from "./components/Drawer.vue"
+import { mdiPlus } from '@mdi/js'
 const drawer = ref(false)
+const currentFile = reactive({
+  id: "",
+  name: "",
+  parents: [],
+  isAppAuthorized: true
+})
 </script>
 
 <template>
@@ -16,8 +23,37 @@ const drawer = ref(false)
     </v-app-bar>
 
     <Drawer></Drawer>
-    
 
+    <v-main>
+      <v-container>
+        <v-row no-gutters class="title" align="end">
+          <v-col>{{ currentFile.name ? fileNameForDisplay : "Unsaved file" }}</v-col>
+          <v-col cols="auto" class="subtitle-2" v-if="currentFile.name.endsWith('.pgjson')">.pgjson</v-col>
+          <v-col cols="auto" v-if="!currentFile.isAppAuthorized">
+            <v-btn icon depressed color="red" title="This file cannot be edited. Click for more information." @click="cannotEditDialog = true"><v-icon>mdi-exclamation-thick</v-icon></v-btn>
+          </v-col>
+        </v-row>
+
+        <!-- <gantt-chart v-for="gc,i in gantts" ref="gc" :key="i" :id="'gc' + i"
+          :is-app-authorized="currentFile.isAppAuthorized"
+          v-model="gantts[i]"
+          @reorder-task="reorderTask($event,i)"
+          @remove="removeGantt(i)"
+        ></gantt-chart> -->
+
+        <v-row no-gutters v-if="currentFile.isAppAuthorized">
+          <v-col><v-btn tile block depressed style="background-color: white; border: 1px solid #ddd" title="new Gantt chart" @click="addNewGantt"><v-icon :icon="mdiPlus"></v-icon></v-btn></v-col>
+        </v-row>
+      </v-container>
+    </v-main>
+
+    <v-snackbar v-model="showNotice" top>
+      <v-row no-gutters justify="center">
+        <v-col cols="auto">{{ notice }}</v-col>
+      </v-row>
+    </v-snackbar>
+    
+    
   </v-app>
   <!-- <div>
     <a href="https://vite.dev" target="_blank">
