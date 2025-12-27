@@ -43,7 +43,7 @@ export const useGanttStore = defineStore('gantt', () => {
 
   const activeChart = computed<GanttChart>(() => {
     return chartData.value.charts.find(c => c.id === chartData.value.activeChartId)
-      || chartData.value.charts[0]
+      || chartData.value.charts[0]!
   })
 
   const tasks = computed<Task[]>(() => activeChart.value?.tasks || [])
@@ -198,7 +198,7 @@ export const useGanttStore = defineStore('gantt', () => {
         ],
         activeChartId: null,
       }
-      chartData.value.activeChartId = chartData.value.charts[0].id
+      chartData.value.activeChartId = chartData.value.charts[0]!.id
     } else {
       // New format (multiple charts)
       chartData.value = data as ChartData
@@ -211,7 +211,7 @@ export const useGanttStore = defineStore('gantt', () => {
 
       // Set active chart
       if (!chartData.value.activeChartId && chartData.value.charts.length > 0) {
-        chartData.value.activeChartId = chartData.value.charts[0].id
+        chartData.value.activeChartId = chartData.value.charts[0]!.id
       }
     }
 
@@ -233,7 +233,7 @@ export const useGanttStore = defineStore('gantt', () => {
       ],
       activeChartId: null,
     }
-    chartData.value.activeChartId = chartData.value.charts[0].id
+    chartData.value.activeChartId = chartData.value.charts[0]!.id
 
     currentFile.value = {
       id: null,
