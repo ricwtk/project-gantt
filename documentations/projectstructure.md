@@ -41,13 +41,15 @@ project-gantt/
 │   │   ├── useGoogleDrive.ts
 │   │   └── useGanttChart.ts      # NEW: Gantt utilities
 │   ├── stores/
-│   │   ├── gantt.js
-│   │   ├── auth.js
-│   │   └── settings.js
+│   │   ├── gantt.ts
+│   │   └── auth.ts
 │   ├── utils/
-│   │   ├── dateHelpers.js
-│   │   ├── colorSchemes.js
-│   │   └── fileHelpers.js
+│   │   ├── index.ts
+│   │   ├── dateHelpers.ts
+│   │   ├── colorSchemes.ts
+│   │   ├── fileHelpers.ts
+│   │   ├── validation.ts
+│   │   └── formatters.ts
 │   ├── lib/
 │   │   └── utils.js         # shadcn-vue utility
 │   ├── App.vue
