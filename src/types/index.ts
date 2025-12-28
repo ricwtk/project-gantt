@@ -31,9 +31,8 @@ export interface ChartData {
 }
 
 export interface Settings {
-  dateFormat: string
+  dateDisplay: Array<'year' | 'month' | 'day'>
   colorScheme: string
-  expandAll: boolean
   rowHeight: number
   columnWidth: number
 }

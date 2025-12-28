@@ -26,7 +26,7 @@ export const useGanttStore = defineStore('gantt', () => {
         name: 'Project Gantt Chart',
         tasks: [],
         settings: {
-          dateFormat: 'yyyy-MM-dd',
+          dateDisplay: ['year', 'month', 'day'],
           colorScheme: 'Set3',
           expandAll: false,
           rowHeight: 40,
@@ -61,9 +61,8 @@ export const useGanttStore = defineStore('gantt', () => {
       name: name || 'New Gantt Chart',
       tasks: [],
       settings: {
-        dateFormat: 'yyyy-MM-dd',
+        dateDisplay: ['year', 'month', 'day'],
         colorScheme: 'Set3',
-        expandAll: false,
         rowHeight: 40,
         columnWidth: 28,
       }
@@ -203,9 +202,8 @@ export const useGanttStore = defineStore('gantt', () => {
             name: data.name || 'Project Gantt Chart',
             tasks: data.tasks || [],
             settings: {
-              dateFormat: 'yyyy-MM-dd',
+              dateDisplay: ['year', 'month', 'day'],
               colorScheme: 'Set3',
-              expandAll: false,
               rowHeight: 40,
               columnWidth: 28,
             }
@@ -245,9 +243,8 @@ export const useGanttStore = defineStore('gantt', () => {
           name: 'Project Gantt Chart',
           tasks: [],
           settings: {
-            dateFormat: 'yyyy-MM-dd',
+            dateDisplay: ['year', 'month', 'day'],
             colorScheme: 'Set3',
-            expandAll: false,
             rowHeight: 40,
             columnWidth: 28,
           }
