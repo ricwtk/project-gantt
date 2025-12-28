@@ -25,15 +25,16 @@ export const useGanttStore = defineStore('gantt', () => {
         id: generateId(),
         name: 'Project Gantt Chart',
         tasks: [],
+        settings: {
+          dateFormat: 'yyyy-MM-dd',
+          colorScheme: 'Set3',
+          expandAll: false,
+          rowHeight: 40,
+          columnWidth: 28,
+        }
       }
     ],
     activeChartId: null,
-  })
-
-  const settings = ref<Settings>({
-    dateFormat: 'yyyy-MM-dd',
-    colorScheme: 'Set3',
-    expandAll: false,
   })
 
   // Initialize active chart
@@ -59,6 +60,13 @@ export const useGanttStore = defineStore('gantt', () => {
       id: generateId(),
       name: name || 'New Gantt Chart',
       tasks: [],
+      settings: {
+        dateFormat: 'yyyy-MM-dd',
+        colorScheme: 'Set3',
+        expandAll: false,
+        rowHeight: 40,
+        columnWidth: 28,
+      }
     }
     chartData.value.charts.push(newChart)
     chartData.value.activeChartId = newChart.id
@@ -194,6 +202,13 @@ export const useGanttStore = defineStore('gantt', () => {
             id: generateId(),
             name: data.name || 'Project Gantt Chart',
             tasks: data.tasks || [],
+            settings: {
+              dateFormat: 'yyyy-MM-dd',
+              colorScheme: 'Set3',
+              expandAll: false,
+              rowHeight: 40,
+              columnWidth: 28,
+            }
           }
         ],
         activeChartId: null,
@@ -229,6 +244,13 @@ export const useGanttStore = defineStore('gantt', () => {
           id: generateId(),
           name: 'Project Gantt Chart',
           tasks: [],
+          settings: {
+            dateFormat: 'yyyy-MM-dd',
+            colorScheme: 'Set3',
+            expandAll: false,
+            rowHeight: 40,
+            columnWidth: 28,
+          }
         }
       ],
       activeChartId: null,
@@ -242,14 +264,14 @@ export const useGanttStore = defineStore('gantt', () => {
     }
   }
 
-  function updateSettings(newSettings: Partial<Settings>): void {
-    settings.value = { ...settings.value, ...newSettings }
-  }
+  // function updateSettings(newSettings: Partial<Settings>): void {
+  //   settings.value = { ...settings.value, ...newSettings }
+  // }
 
   return {
     currentFile,
     chartData,
-    settings,
+    // settings,
     tasks,
     activeChart,
     allCharts,
@@ -266,6 +288,6 @@ export const useGanttStore = defineStore('gantt', () => {
     loadChartData,
     markModified,
     resetChart,
-    updateSettings,
+    // updateSettings,
   }
 })

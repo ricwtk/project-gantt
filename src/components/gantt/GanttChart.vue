@@ -1,8 +1,8 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Plus, MoreVertical, Edit, Copy, Trash2 } from 'lucide-vue-next'
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardAction } from '@/components/ui/card'
+import { Plus, MoreVertical, Edit, Copy, Trash2, Settings } from 'lucide-vue-next'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -21,6 +21,7 @@ import GanttTask from './GanttTask.vue'
 import GanttTimeline from './GanttTimeline.vue'
 import TaskDialog from './TaskDialog.vue'
 import ChartDialog from './ChartDialog.vue'
+import ChartSettingsDialog from './ChartSettingsDialog.vue'
 
 const ganttStore = useGanttStore()
 
@@ -28,6 +29,7 @@ const selectedTask = ref(null)
 const showTaskDialog = ref(false)
 const showChartDialog = ref(false)
 const editingChart = ref(null)
+const showChartSettings = ref(false)
 
 const handleAddTask = () => {
   selectedTask.value = null
@@ -94,12 +96,13 @@ const handleDeleteChart = (chart) => {
 const handleTabChange = (chartId) => {
   ganttStore.setActiveChart(chartId)
 }
+
 </script>
 
 <template>
   <div class="space-y-4">
     <Card>
-      <CardHeader>
+      <CardContent>
         <div class="flex items-center justify-between mb-2">
           <CardTitle>Gantt Charts</CardTitle>
           <Button @click="handleAddChart" size="sm" variant="outline">
@@ -107,99 +110,103 @@ const handleTabChange = (chartId) => {
             New Chart
           </Button>
         </div>
+      </CardContent>
+    </Card>
 
-        <!-- Tabs for multiple charts -->
-        <Tabs :default-value="ganttStore.activeChart?.id" @update:model-value="handleTabChange">
-          <TabsList class="w-full justify-start">
-            <TabsTrigger
-              v-for="chart in ganttStore.allCharts"
-              :key="chart.id"
-              :value="chart.id"
-              class="relative group"
-            >
-              <span>{{ chart.name }}</span>
-
-              <!-- Chart actions dropdown -->
-              <DropdownMenu>
-                <DropdownMenuTrigger as-child>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    class="h-6 w-6 ml-2 opacity-0 group-hover:opacity-100 transition-opacity"
-                    @click.stop
-                  >
-                    <MoreVertical class="w-3 h-3" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem @click="handleEditChart(chart)">
-                    <Edit class="w-4 h-4 mr-2" />
-                    Rename
-                  </DropdownMenuItem>
-                  <DropdownMenuItem @click="handleDuplicateChart(chart)">
-                    <Copy class="w-4 h-4 mr-2" />
-                    Duplicate
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem
-                    @click="handleDeleteChart(chart)"
-                    class="text-destructive"
-                  >
-                    <Trash2 class="w-4 h-4 mr-2" />
-                    Delete
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </TabsTrigger>
-          </TabsList>
-
-          <TabsContent
-            v-for="chart in ganttStore.allCharts"
-            :key="chart.id"
-            :value="chart.id"
-            class="mt-4"
-          >
-            <div class="flex items-center justify-between mb-4">
-              <div>
-                <h3 class="text-lg font-semibold">{{ chart.name }}</h3>
-                <p class="text-sm text-muted-foreground">
-                  {{ chart.tasks.length }} task{{ chart.tasks.length !== 1 ? 's' : '' }}
-                </p>
-              </div>
-              <Button @click="handleAddTask" size="sm">
-                <Plus class="w-4 h-4 mr-2" />
-                Add Task
+    <Card
+      v-for="chart in ganttStore.allCharts"
+      :key="chart.id"
+      :value="chart.id"
+      class="mt-4"
+    >
+      <CardHeader>
+        <CardTitle>
+          {{ chart.name }}
+          <!-- Chart actions dropdown -->
+          <DropdownMenu>
+            <DropdownMenuTrigger as-child>
+              <Button
+                variant="ghost"
+                size="icon"
+                class="h-6 w-6 ml-2"
+                @click.stop
+              >
+                <MoreVertical class="w-3 h-3" />
               </Button>
-            </div>
-
-            <div v-if="ganttStore.tasks.length === 0" class="text-center py-8 text-muted-foreground">
-              No tasks yet. Click "Add Task" to get started.
-            </div>
-
-            <div v-else class="space-y-2">
-              <div class="grid grid-cols-12 gap-4 font-medium text-sm border-b pb-2">
-                <div class="col-span-4">Task</div>
-                <div class="col-span-3">Planned</div>
-                <div class="col-span-3">Actual</div>
-                <div class="col-span-2">Actions</div>
-              </div>
-
-              <GanttTask
-                v-for="task in ganttStore.tasks"
-                :key="task.id"
-                :task="task"
-                @edit="handleEditTask"
-                @delete="handleDeleteTask"
-              />
-            </div>
-
-            <div v-if="ganttStore.tasks.length > 0" class="mt-8">
-              <h3 class="text-lg font-semibold mb-4">Timeline</h3>
-              <GanttTimeline :tasks="ganttStore.tasks" />
-            </div>
-          </TabsContent>
-        </Tabs>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem @click="handleEditChart(chart)">
+                <Settings class="w-4 h-4 mr-2" />
+                Settings
+              </DropdownMenuItem>
+              <DropdownMenuItem @click="handleDuplicateChart(chart)">
+                <Copy class="w-4 h-4 mr-2" />
+                Duplicate
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                @click="handleDeleteChart(chart)"
+                class="text-destructive"
+              >
+                <Trash2 class="w-4 h-4 mr-2" />
+                Delete
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </CardTitle>
+        <CardDescription class="text-sm text-muted-foreground">
+          {{ chart.tasks.length }} task{{ chart.tasks.length !== 1 ? 's' : '' }}
+        </CardDescription>
+        <CardAction>
+          <Button @click="handleAddTask" size="sm">
+            <Plus class="w-4 h-4 mr-2" />
+            Add Task
+          </Button>
+        </CardAction>
       </CardHeader>
+
+      <CardContent>
+        <div class="flex items-center justify-between mb-4">
+          <div>
+            <p class="text-sm text-muted-foreground">
+
+            </p>
+          </div>
+          <div class="flex space-x-2">
+
+            <!-- <Button @click="handleShowSettings(chart.id)" size="sm">
+              <Settings class="w-4 h-4 mr-2" />
+              Settings
+            </Button> -->
+          </div>
+        </div>
+
+        <div v-if="ganttStore.tasks.length === 0" class="text-center py-8 text-muted-foreground">
+          No tasks yet. Click "Add Task" to get started.
+        </div>
+
+        <div v-else class="space-y-2">
+          <div class="grid grid-cols-12 gap-4 font-medium text-sm border-b pb-2">
+            <div class="col-span-4">Task</div>
+            <div class="col-span-3">Planned</div>
+            <div class="col-span-3">Actual</div>
+            <div class="col-span-2">Actions</div>
+          </div>
+
+          <GanttTask
+            v-for="task in ganttStore.tasks"
+            :key="task.id"
+            :task="task"
+            @edit="handleEditTask"
+            @delete="handleDeleteTask"
+          />
+        </div>
+
+        <div v-if="ganttStore.tasks.length > 0" class="mt-8">
+          <h3 class="text-lg font-semibold mb-4">Timeline</h3>
+          <GanttTimeline :tasks="ganttStore.tasks" />
+        </div>
+      </CardContent>
     </Card>
 
     <TaskDialog
@@ -213,5 +220,7 @@ const handleTabChange = (chartId) => {
       :chart="editingChart"
       @save="handleChartSaved"
     />
+
+      <!-- <ChartSettingsDialog v-model:open="showSettings" :chartIndex="editingChartIndex" /> -->
   </div>
 </template>

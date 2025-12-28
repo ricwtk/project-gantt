@@ -22,6 +22,7 @@ export interface GanttChart {
   id: string
   name: string
   tasks: Task[]
+  settings: Settings
 }
 
 export interface ChartData {
@@ -33,6 +34,8 @@ export interface Settings {
   dateFormat: string
   colorScheme: string
   expandAll: boolean
+  rowHeight: number
+  columnWidth: number
 }
 
 export interface CurrentFile {

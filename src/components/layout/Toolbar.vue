@@ -7,7 +7,7 @@ import { useGanttStore } from '@/stores/gantt'
 import { useGoogleDrive } from '@/composables/useGoogleDrive'
 import { useAuthStore } from '@/stores/auth'
 import DriveFilePicker from '@/components/google-drive/DriveFilePicker.vue'
-import SettingsDialog from '@/components/layout/SettingsDialog.vue'
+// import SettingsDialog from '@/components/layout/SettingsDialog.vue'
 import LocalFilePicker from '@/components/local/LocalFilePicker.vue'
 
 const ganttStore = useGanttStore()
@@ -193,10 +193,10 @@ const handleFileSelected = async (file) => {
 
         <Separator orientation="vertical" class="h-6" />
 
-        <Button variant="ghost" size="sm" @click="showSettings = true">
+        <!-- <Button variant="ghost" size="sm" @click="showSettings = true">
           <Settings class="w-4 h-4 mr-2" />
           Settings
-        </Button>
+        </Button> -->
 
         <div class="flex-1" />
 
@@ -229,7 +229,5 @@ const handleFileSelected = async (file) => {
       v-else
       v-model:open="showLocalFilePicker"
     />
-
-    <SettingsDialog v-model:open="showSettings" />
   </div>
 </template>
