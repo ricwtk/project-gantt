@@ -35,6 +35,19 @@ const formData = ref({
   color: null,
 })
 
+const resetForm = () => {
+  const today = format(new Date(), 'yyyy-MM-dd')
+  formData.value = {
+    name: '',
+    description: '',
+    plannedStart: today,
+    plannedEnd: today,
+    actualStart: '',
+    actualEnd: '',
+    color: null,
+  }
+}
+
 watch(() => props.task, (newTask) => {
   if (newTask) {
     formData.value = {
@@ -50,19 +63,6 @@ watch(() => props.task, (newTask) => {
     resetForm()
   }
 }, { immediate: true })
-
-const resetForm = () => {
-  const today = format(new Date(), 'yyyy-MM-dd')
-  formData.value = {
-    name: '',
-    description: '',
-    plannedStart: today,
-    plannedEnd: today,
-    actualStart: '',
-    actualEnd: '',
-    color: null,
-  }
-}
 
 const handleSave = () => {
   const taskData = {
