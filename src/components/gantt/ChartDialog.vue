@@ -20,6 +20,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import type { GanttChart } from '@/types'
+import { getMonthName } from '@/utils/dateHelpers'
 
 interface Props {
   open: boolean
@@ -78,6 +79,8 @@ watch(() => props.open, (isOpen) => {
   }
 })
 
+const today = new Date()
+
 const handleSave = (): void => {
   const trimmedName = chartName.value.trim()
 
@@ -117,7 +120,7 @@ const toggleDateDisplay = (value: string): void => {
 
 <template>
   <Dialog :open="open" @update:open="$emit('update:open', $event)">
-    <DialogContent class="sm:max-w-[425px]">
+    <DialogContent class="sm:max-w-[500px]">
       <DialogHeader>
         <DialogTitle>
           {{ chart ? 'Rename Gantt Chart' : 'New Gantt Chart' }}
@@ -127,7 +130,7 @@ const toggleDateDisplay = (value: string): void => {
         </DialogDescription>
       </DialogHeader>
 
-      <div class="grid gap-4 py-4">
+      <div class="grid gap-4 py-4 max-h-[60vh] overflow-y-auto">
         <div class="grid gap-2">
           <Label for="chart-name">Chart Name</Label>
           <Input
@@ -144,17 +147,29 @@ const toggleDateDisplay = (value: string): void => {
 
         <div class="grid gap-2">
           <Label for="date-display">Date Display</Label>
-          <ToggleGroup type="multiple" variant="outline" v-model="chartSettings.dateDisplay">
+          <ToggleGroup id="date-display" type="multiple" variant="outline" v-model="chartSettings.dateDisplay" class="w-full">
             <ToggleGroupItem
               v-for="option in dateDisplayOptions"
               :key="option.value"
               :value="option.value"
+              class="flex-1"
             >
               <!-- :selected="chartSettings.dateDisplay.includes(option.value)"
               @click="toggleDateDisplay(option.value)" -->
               {{ option.label }}
             </ToggleGroupItem>
           </ToggleGroup>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div class="grid gap-2">
+            <Label for="row-height">Row Height</Label>
+            <Input id="row-height" type="number" v-model="chartSettings.rowHeight" min="10" max="100" />
+          </div>
+          <div class="grid gap-2">
+            <Label for="column-width">Column Width</Label>
+            <Input id="column-width" type="number" v-model="chartSettings.columnWidth" min="10" max="100" />
+          </div>
         </div>
 
         <div class="space-y-2">
@@ -175,7 +190,28 @@ const toggleDateDisplay = (value: string): void => {
           </Select>
         </div>
 
-        <div>{{ chartSettings }}</div>
+        <div id="chart-sample" class="flex flex-col overflow-x-auto items-center">
+          <div id="year"
+            class="text-center border-t border-l border-r border-border"
+            :class="{'border-b': !chartSettings.dateDisplay.includes('month') && !chartSettings.dateDisplay.includes('day')}"
+            v-if="chartSettings.dateDisplay.includes('year')"
+            :style="{ width: chartSettings.columnWidth*5 + 'px' }"
+          >{{ today.getFullYear() }}</div>
+          <div id="month"
+            class="text-center border-t border-l border-r border-border"
+            :class="{'border-b': !chartSettings.dateDisplay.includes('day')}"
+            v-if="chartSettings.dateDisplay.includes('month')"
+            :style="{ width: chartSettings.columnWidth*5 + 'px' }"
+          >{{ getMonthName(today.getMonth()) }}</div>
+          <div id="days" v-if="chartSettings.dateDisplay.includes('day')" class="flex flex-row">
+            <div
+              class="text-center border-l border-t border-b border-border"
+              :class="{'border-r': index === 4}"
+              v-for="(day, index) in Array.from({ length: 5 }, (_, i) => today.getDate() + i - 2)"
+              :style="{ width: chartSettings.columnWidth + 'px' }"
+            >{{ day }}</div>
+          </div>
+        </div>
       </div>
 
       <DialogFooter>

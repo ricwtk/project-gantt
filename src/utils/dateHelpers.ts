@@ -166,3 +166,8 @@ export function getRelativeDate(dateString: string): string {
     return dateString
   }
 }
+
+export function getMonthName(month: number): string {
+  let months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
+  return months[month] || ''
+}
