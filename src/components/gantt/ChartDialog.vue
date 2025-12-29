@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { ref, watch, computed } from 'vue'
 import {
   Dialog,
   DialogContent,
@@ -21,6 +21,8 @@ import {
 } from '@/components/ui/select'
 import type { GanttChart } from '@/types'
 import { getMonthName } from '@/utils/dateHelpers'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { dateHeaderHeight, calculateHeaderHeight } from '@/utils/sizeHelpers'
 
 interface Props {
   open: boolean
@@ -116,6 +118,9 @@ const toggleDateDisplay = (value: string): void => {
     chartSettings.value.dateDisplay.push(value)
   }
 }
+
+const headerHeight = computed(() => calculateHeaderHeight(chartSettings.value.dateDisplay))
+
 </script>
 
 <template>
@@ -172,7 +177,7 @@ const toggleDateDisplay = (value: string): void => {
           </div>
         </div>
 
-        <div class="space-y-2">
+        <!-- <div class="space-y-2">
           <Label for="color-scheme">Color Scheme</Label>
           <Select v-model="chartSettings.colorScheme">
             <SelectTrigger id="color-scheme">
@@ -188,30 +193,50 @@ const toggleDateDisplay = (value: string): void => {
               </SelectItem>
             </SelectContent>
           </Select>
-        </div>
+        </div> -->
 
-        <div id="chart-sample" class="flex flex-col overflow-x-auto items-center">
-          <div id="year"
-            class="text-center border-t border-l border-r border-border"
-            :class="{'border-b': !chartSettings.dateDisplay.includes('month') && !chartSettings.dateDisplay.includes('day')}"
-            v-if="chartSettings.dateDisplay.includes('year')"
-            :style="{ width: chartSettings.columnWidth*5 + 'px' }"
-          >{{ today.getFullYear() }}</div>
-          <div id="month"
-            class="text-center border-t border-l border-r border-border"
-            :class="{'border-b': !chartSettings.dateDisplay.includes('day')}"
-            v-if="chartSettings.dateDisplay.includes('month')"
-            :style="{ width: chartSettings.columnWidth*5 + 'px' }"
-          >{{ getMonthName(today.getMonth()) }}</div>
-          <div id="days" v-if="chartSettings.dateDisplay.includes('day')" class="flex flex-row">
-            <div
-              class="text-center border-l border-t border-b border-border"
-              :class="{'border-r': index === 4}"
-              v-for="(day, index) in Array.from({ length: 5 }, (_, i) => today.getDate() + i - 2)"
-              :style="{ width: chartSettings.columnWidth + 'px' }"
-            >{{ day }}</div>
-          </div>
-        </div>
+        <Card>
+          <CardHeader>
+            <CardTitle>
+              Chart Sample
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div id="chart-sample" class="flex flex-row items-center">
+              <div
+                class="flex-col inline-flex justify-center items-center border-l border-t border-border"
+                :style="{ height: headerHeight + 'px', width: '50px' }"
+              >No.</div>
+              <div
+                class="flex-col inline-flex justify-center items-center border-l border-t border-border"
+                :style="{ height: headerHeight + 'px', width: '200px' }"
+              >Task</div>
+              <div class="flex flex-col overflow-x-auto">
+                <div id="year"
+                  class="inline-flex justify-center items-center border-t border-l border-r border-border"
+                  :class="{'border-b': !chartSettings.dateDisplay.includes('month') && !chartSettings.dateDisplay.includes('day')}"
+                  v-if="chartSettings.dateDisplay.includes('year')"
+                  :style="{ width: chartSettings.columnWidth*5 + 'px', height: dateHeaderHeight + 'px' }"
+                >{{ today.getFullYear() }}</div>
+                <div id="month"
+                  class="inline-flex justify-center items-center border-t border-l border-r border-border"
+                  :class="{'border-b': !chartSettings.dateDisplay.includes('day')}"
+                  v-if="chartSettings.dateDisplay.includes('month')"
+                  :style="{ width: chartSettings.columnWidth*5 + 'px', height: dateHeaderHeight + 'px' }"
+                >{{ getMonthName(today.getMonth()) }}</div>
+                <div id="days" v-if="chartSettings.dateDisplay.includes('day')" class="flex flex-row">
+                  <div
+                    class="inline-flex justify-center items-center border-l border-t border-b border-border"
+                    :class="{'border-r': index === 4}"
+                    v-for="(day, index) in Array.from({ length: 5 }, (_, i) => today.getDate() + i - 2)"
+                    :style="{ width: chartSettings.columnWidth + 'px', height: dateHeaderHeight + 'px' }"
+                  >{{ day }}</div>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
       </div>
 
       <DialogFooter>
