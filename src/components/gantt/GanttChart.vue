@@ -21,7 +21,6 @@ import GanttTask from './GanttTask.vue'
 import GanttTimeline from './GanttTimeline.vue'
 import TaskDialog from './TaskDialog.vue'
 import ChartDialog from './ChartDialog.vue'
-import ChartSettingsDialog from './ChartSettingsDialog.vue'
 
 const ganttStore = useGanttStore()
 
@@ -221,6 +220,5 @@ const handleTabChange = (chartId) => {
       @save="handleChartSaved"
     />
 
-      <!-- <ChartSettingsDialog v-model:open="showSettings" :chartIndex="editingChartIndex" /> -->
   </div>
 </template>
