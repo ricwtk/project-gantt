@@ -159,7 +159,7 @@ const getActualPosition = (task: Task) => {
 </script>
 
 <template>
-  <div class="gantt-container overflow-x-auto border rounded-lg">
+  <div class="overflow-y-auto overflow-x-auto border rounded-lg">
     <!-- <div class="min-w-[800px] flex flex-row"> -->
     <div class="flex flex-row">
       <!-- No. column -->
@@ -241,10 +241,3 @@ const getActualPosition = (task: Task) => {
     </div>
   </div>
 </template>
-
-<style scoped>
-.gantt-container {
-  max-height: 600px;
-  overflow-y: auto;
-}
-</style>

@@ -19,42 +19,44 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import type { GanttChart } from '@/types'
+import type { GanttChart, Settings, Task } from '@/types'
 import { getMonthName } from '@/utils/dateHelpers'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { calculateHeaderHeight } from '@/utils/sizeHelpers'
 import { dateHeaderHeight } from '@/constants'
+import GanttTimeline from '@/components/gantt/GanttTimeline.vue'
 
 interface Props {
   open: boolean
-  chart: GanttChart | null
+  chartName: string | null
+  chartSettings: Settings | null
 }
 
 const props = withDefaults(defineProps<Props>(), {
   open: false,
-  chart: null
+  chartName: null,
+  chartSettings: {
+    name: '',
+    dateDisplay: ['year', 'month', 'day'],
+    colorScheme: 'Set3',
+    rowHeight: 40,
+    columnWidth: 28
+  }
 })
 
 interface Emits {
   (e: 'update:open', value: boolean): void
-  (e: 'save', chartName: string): void
+  (e: 'save', chartName: string, chartSettings: Settings): void
 }
 
 const emit = defineEmits<Emits>()
 
-const chartSettings = ref({
-  name: '',
-  dateDisplay: ['year', 'month', 'day'],
-  colorScheme: 'Set3',
-  rowHeight: 40,
-  columnWidth: 28
-})
-
-const chartName = ref<string>('')
+const currentName = ref(props.chartName)
+const currentSettings = ref(props.chartSettings)
 
 const resetChartSettings = () => {
-  chartSettings.value = {
-    name: '',
+  currentName.value = ''
+  currentSettings.value = {
     dateDisplay: ['year', 'month', 'day'],
     colorScheme: 'Set3',
     rowHeight: 40,
@@ -62,14 +64,17 @@ const resetChartSettings = () => {
   }
 }
 
-watch(() => props.chart, (newChart) => {
-  if (newChart) {
-    chartSettings.value = {
-      name: newChart.name || '',
-      dateDisplay: newChart.settings.dateDisplay || ['year', 'month', 'day'],
-      colorScheme: newChart.settings.colorScheme || 'Set3',
-      rowHeight: newChart.settings.rowHeight || 40,
-      columnWidth: newChart.settings.columnWidth || 28
+watch(() => props.chartName, (newName) => {
+  currentName.value = newName
+})
+
+watch(() => props.chartSettings, (newSettings) => {
+  if (newSettings) {
+    currentSettings.value = {
+      dateDisplay: newSettings.dateDisplay || ['year', 'month', 'day'],
+      colorScheme: newSettings.colorScheme || 'Set3',
+      rowHeight: newSettings.rowHeight || 40,
+      columnWidth: newSettings.columnWidth || 28
     }
   } else {
     resetChartSettings()
@@ -78,21 +83,14 @@ watch(() => props.chart, (newChart) => {
 
 watch(() => props.open, (isOpen) => {
   if (!isOpen) {
-    chartName.value = ''
+    resetChartSettings()
   }
 })
 
 const today = new Date()
 
 const handleSave = (): void => {
-  const trimmedName = chartName.value.trim()
-
-  if (!trimmedName) {
-    alert('Please enter a chart name')
-    return
-  }
-
-  emit('save', trimmedName)
+  emit('save', currentName.value, currentSettings.value)
   emit('update:open', false)
 }
 
@@ -113,15 +111,31 @@ const dateDisplayOptions = [
   { value: 'day', label: 'Day' },
 ]
 const toggleDateDisplay = (value: string): void => {
-  if (chartSettings.value.dateDisplay.includes(value)) {
-    chartSettings.value.dateDisplay = chartSettings.value.dateDisplay.filter((v) => v !== value)
+  if (currentSettings.value.dateDisplay.includes(value)) {
+    currentSettings.value.dateDisplay = currentSettings.value.dateDisplay.filter((v) => v !== value)
   } else {
-    chartSettings.value.dateDisplay.push(value)
+    currentSettings.value.dateDisplay.push(value)
   }
 }
 
-const headerHeight = computed(() => calculateHeaderHeight(chartSettings.value.dateDisplay))
+const headerHeight = computed(() => calculateHeaderHeight(currentSettings.value.dateDisplay))
 
+const sampleTasks: Task[] = [
+  {
+    id: 'task1',
+    name: 'Task 1',
+    planned: ['2023-01-01', '2023-01-05'],
+    actual: ['2023-01-02', '2023-01-04'],
+    color: '#ff0000',
+  },
+  {
+    id: 'task2',
+    name: 'Task 2',
+    planned: ['2023-01-06', '2023-01-10'],
+    actual: ['2023-01-07', '2023-01-09'],
+    color: '#0000ff',
+  },
+]
 </script>
 
 <template>
@@ -129,10 +143,10 @@ const headerHeight = computed(() => calculateHeaderHeight(chartSettings.value.da
     <DialogContent class="sm:max-w-[500px]">
       <DialogHeader>
         <DialogTitle>
-          {{ chart ? 'Rename Gantt Chart' : 'New Gantt Chart' }}
+          {{ chartSettings ? 'Update Gantt Chart' : 'New Gantt Chart' }}
         </DialogTitle>
         <DialogDescription>
-          {{ chart ? 'Update the name of your Gantt chart' : 'Create a new Gantt chart in this file' }}
+          {{ chartSettings ? 'Update the settings of your Gantt chart' : 'Create a new Gantt chart in this file' }}
         </DialogDescription>
       </DialogHeader>
 
@@ -141,9 +155,8 @@ const headerHeight = computed(() => calculateHeaderHeight(chartSettings.value.da
           <Label for="chart-name">Chart Name</Label>
           <Input
             id="chart-name"
-            v-model="chartSettings.name"
+            v-model="currentName"
             placeholder="e.g., Phase 1: Planning"
-            @keyup.enter="handleSave"
             autofocus
           />
           <p class="text-xs text-muted-foreground">
@@ -153,14 +166,14 @@ const headerHeight = computed(() => calculateHeaderHeight(chartSettings.value.da
 
         <div class="grid gap-2">
           <Label for="date-display">Date Display</Label>
-          <ToggleGroup id="date-display" type="multiple" variant="outline" v-model="chartSettings.dateDisplay" class="w-full">
+          <ToggleGroup id="date-display" type="multiple" variant="outline" v-model="currentSettings.dateDisplay" class="w-full">
             <ToggleGroupItem
               v-for="option in dateDisplayOptions"
               :key="option.value"
               :value="option.value"
               class="flex-1"
             >
-              <!-- :selected="chartSettings.dateDisplay.includes(option.value)"
+              <!-- :selected="currentSettings.dateDisplay.includes(option.value)"
               @click="toggleDateDisplay(option.value)" -->
               {{ option.label }}
             </ToggleGroupItem>
@@ -170,11 +183,11 @@ const headerHeight = computed(() => calculateHeaderHeight(chartSettings.value.da
         <div class="grid grid-cols-2 gap-4">
           <div class="grid gap-2">
             <Label for="row-height">Row Height</Label>
-            <Input id="row-height" type="number" v-model="chartSettings.rowHeight" min="10" max="100" />
+            <Input id="row-height" type="number" v-model="currentSettings.rowHeight" min="10" max="100" />
           </div>
           <div class="grid gap-2">
             <Label for="column-width">Column Width</Label>
-            <Input id="column-width" type="number" v-model="chartSettings.columnWidth" min="10" max="100" />
+            <Input id="column-width" type="number" v-model="currentSettings.columnWidth" min="10" max="100" />
           </div>
         </div>
 
@@ -196,47 +209,18 @@ const headerHeight = computed(() => calculateHeaderHeight(chartSettings.value.da
           </Select>
         </div> -->
 
-        <Card>
-          <CardHeader>
-            <CardTitle>
-              Chart Sample
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div id="chart-sample" class="flex flex-row items-center">
-              <div
-                class="flex-col inline-flex justify-center items-center border-l border-t border-border"
-                :style="{ height: headerHeight + 'px', width: '50px' }"
-              >No.</div>
-              <div
-                class="flex-col inline-flex justify-center items-center border-l border-t border-border"
-                :style="{ height: headerHeight + 'px', width: '200px' }"
-              >Task</div>
-              <div class="flex flex-col overflow-x-auto">
-                <div id="year"
-                  class="inline-flex justify-center items-center border-t border-l border-r border-border"
-                  :class="{'border-b': !chartSettings.dateDisplay.includes('month') && !chartSettings.dateDisplay.includes('day')}"
-                  v-if="chartSettings.dateDisplay.includes('year')"
-                  :style="{ width: chartSettings.columnWidth*5 + 'px', height: dateHeaderHeight + 'px' }"
-                >{{ today.getFullYear() }}</div>
-                <div id="month"
-                  class="inline-flex justify-center items-center border-t border-l border-r border-border"
-                  :class="{'border-b': !chartSettings.dateDisplay.includes('day')}"
-                  v-if="chartSettings.dateDisplay.includes('month')"
-                  :style="{ width: chartSettings.columnWidth*5 + 'px', height: dateHeaderHeight + 'px' }"
-                >{{ getMonthName(today.getMonth()) }}</div>
-                <div id="days" v-if="chartSettings.dateDisplay.includes('day')" class="flex flex-row">
-                  <div
-                    class="inline-flex justify-center items-center border-l border-t border-b border-border"
-                    :class="{'border-r': index === 4}"
-                    v-for="(day, index) in Array.from({ length: 5 }, (_, i) => today.getDate() + i - 2)"
-                    :style="{ width: chartSettings.columnWidth + 'px', height: dateHeaderHeight + 'px' }"
-                  >{{ day }}</div>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        <div class="w-full overflow-x-auto">
+          <Card>
+            <CardHeader>
+              <CardTitle>
+                Chart Sample
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <GanttTimeline :tasks="sampleTasks" :settings="currentSettings" />
+            </CardContent>
+          </Card>
+        </div>
 
       </div>
 
@@ -245,7 +229,7 @@ const headerHeight = computed(() => calculateHeaderHeight(chartSettings.value.da
           Cancel
         </Button>
         <Button @click="handleSave">
-          {{ chart ? 'Save' : 'Create' }}
+          {{ chartSettings ? 'Save' : 'Create' }}
         </Button>
       </DialogFooter>
     </DialogContent>

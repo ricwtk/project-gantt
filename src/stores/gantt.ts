@@ -54,17 +54,17 @@ export const useGanttStore = defineStore('gantt', () => {
     chartData.value.activeChartId = chartId
   }
 
-  function addChart(name: string = 'New Gantt Chart'): GanttChart {
+  function addChart(name: string = 'New Gantt Chart', settings: Settings = {
+    dateDisplay: ['year', 'month', 'day'],
+    colorScheme: 'Set3',
+    rowHeight: 40,
+    columnWidth: 28,
+  }): GanttChart {
     const newChart: GanttChart = {
       id: generateId(),
       name: name || 'New Gantt Chart',
       tasks: [],
-      settings: {
-        dateDisplay: ['year', 'month', 'day'],
-        colorScheme: 'Set3',
-        rowHeight: 40,
-        columnWidth: 28,
-      }
+      settings: settings
     }
     chartData.value.charts.push(newChart)
     chartData.value.activeChartId = newChart.id
@@ -76,6 +76,14 @@ export const useGanttStore = defineStore('gantt', () => {
     const chart = chartData.value.charts.find(c => c.id === chartId)
     if (chart) {
       chart.name = name
+      markModified()
+    }
+  }
+
+  function updateChartSettings(chartId: string, settings: Settings): void {
+    const chart = chartData.value.charts.find(c => c.id === chartId)
+    if (chart) {
+      chart.settings = settings
       markModified()
     }
   }
@@ -274,6 +282,7 @@ export const useGanttStore = defineStore('gantt', () => {
     setActiveChart,
     addChart,
     updateChartName,
+    updateChartSettings,
     deleteChart,
     duplicateChart,
     addTask,

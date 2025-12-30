@@ -67,11 +67,12 @@ const handleEditChart = (chart) => {
   showChartDialog.value = true
 }
 
-const handleChartSaved = (chartName) => {
+const handleChartSaved = (chartName, chartSettings) => {
   if (editingChart.value) {
     ganttStore.updateChartName(editingChart.value.id, chartName)
+    ganttStore.updateChartSettings(editingChart.value.id, chartSettings)
   } else {
-    ganttStore.addChart(chartName)
+    ganttStore.addChart(chartName, chartSettings)
   }
   showChartDialog.value = false
   editingChart.value = null
@@ -216,7 +217,8 @@ const handleTabChange = (chartId) => {
 
     <ChartDialog
       v-model:open="showChartDialog"
-      :chart="editingChart"
+      :chartName="editingChart?.name"
+      :chartSettings="editingChart?.settings"
       @save="handleChartSaved"
     />
 
