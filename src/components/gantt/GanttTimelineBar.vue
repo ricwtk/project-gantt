@@ -2,7 +2,8 @@
 import { ref, computed, watch } from 'vue';
 import { Task, Settings } from '@/types';
 import { parseISO, differenceInDays } from 'date-fns';
-import { defaultTaskColor } from '@/constants';
+import { defaultTaskColor, plannedBarHeight, actualBarHeight, defaultActualBarColor } from '@/constants';
+import { TinyColor } from '@ctrl/tinycolor';
 
 const props = defineProps<{
   task: Task;
@@ -38,6 +39,32 @@ const barStart = computed(() => {
     return 0;
   }
 });
+
+const actualBarWidth = computed(() => {
+  try {
+    let start = parseISO(props.task.actual[0]);
+    let end = parseISO(props.task.actual[1]);
+    let duration = differenceInDays(end, start) + 1;
+    return props.settings.columnWidth * duration;
+  } catch (error) {
+    console.error(error);
+    return 0;
+  }
+});
+const actualBarColor = computed(() => {
+  return new TinyColor(barColor.value).darken(30).toHexString();
+})
+const actualBarStart = computed(() => {
+  try {
+    let start = parseISO(props.task.actual[0]);
+    let duration = differenceInDays(start, props.dateRange.start);
+    return props.settings.columnWidth * duration;
+  } catch (error) {
+    console.error(error);
+    return 0;
+  }
+});
+
 </script>
 
 <template>
@@ -50,15 +77,24 @@ const barStart = computed(() => {
       :style="{ width: settings.columnWidth * dateRange.days + 'px' }"
     >
       <!-- {{ task }} -->
-      <div
-        class="absolute top-3/20 left-0"
+      <div class="absolute"
         :style="{
+          top: (1-plannedBarHeight) / 2 * 100 + '%',
           backgroundColor: barColor,
-          height: settings.rowHeight * 0.7 + 'px',
+          height: plannedBarHeight * 100 + '%',
           width: barWidth + 'px',
-          marginLeft: barStart + 'px'
+          left: barStart + 'px'
         }"
       ></div>
+       <div class="absolute"
+        :style="{
+            top: (1-actualBarHeight) / 2 * 100 + '%',
+            backgroundColor: actualBarColor,
+            height: actualBarHeight * 100 + '%',
+            width: actualBarWidth + 'px',
+            left: actualBarStart + 'px'
+          }"
+       ></div>
     </div>
 </div>
 </template>

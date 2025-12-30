@@ -14,6 +14,7 @@
     "type-check": "vue-tsc --build"
   },
   "dependencies": {
+    "@ctrl/tinycolor": "^4.2.0",
     "@tailwindcss/vite": "^4.1.18",
     "@vueuse/core": "^14.1.0",
     "class-variance-authority": "^0.7.1",
