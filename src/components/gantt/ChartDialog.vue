@@ -22,7 +22,8 @@ import {
 import type { GanttChart } from '@/types'
 import { getMonthName } from '@/utils/dateHelpers'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { dateHeaderHeight, calculateHeaderHeight } from '@/utils/sizeHelpers'
+import { calculateHeaderHeight } from '@/utils/sizeHelpers'
+import { dateHeaderHeight } from '@/constants'
 
 interface Props {
   open: boolean

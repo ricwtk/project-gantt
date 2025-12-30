@@ -181,7 +181,7 @@ const handleTabChange = (chartId) => {
           </div>
         </div>
 
-        <div v-if="ganttStore.tasks.length === 0" class="text-center py-8 text-muted-foreground">
+        <div v-if="chart.tasks.length === 0" class="text-center py-8 text-muted-foreground">
           No tasks yet. Click "Add Task" to get started.
         </div>
 
@@ -194,7 +194,7 @@ const handleTabChange = (chartId) => {
           </div>
 
           <GanttTask
-            v-for="task in ganttStore.tasks"
+            v-for="task in chart.tasks"
             :key="task.id"
             :task="task"
             @edit="handleEditTask"
@@ -202,9 +202,9 @@ const handleTabChange = (chartId) => {
           />
         </div>
 
-        <div v-if="ganttStore.tasks.length > 0" class="mt-8">
+        <div v-if="chart.tasks.length > 0" class="mt-8">
           <h3 class="text-lg font-semibold mb-4">Timeline</h3>
-          <GanttTimeline :tasks="ganttStore.tasks" />
+          <GanttTimeline :tasks="chart.tasks" :settings="chart.settings" />
         </div>
       </CardContent>
     </Card>

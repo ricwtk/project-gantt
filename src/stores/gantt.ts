@@ -28,7 +28,6 @@ export const useGanttStore = defineStore('gantt', () => {
         settings: {
           dateDisplay: ['year', 'month', 'day'],
           colorScheme: 'Set3',
-          expandAll: false,
           rowHeight: 40,
           columnWidth: 28,
         }

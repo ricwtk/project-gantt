@@ -1,15 +1,16 @@
-<script setup>
+<script setup lang="ts">
 import { computed } from 'vue'
 import { parseISO, differenceInDays, addDays, format, startOfMonth, endOfMonth } from 'date-fns'
+import type { Settings, Task } from '@/types'
+import { dateHeaderHeight } from '@/constants'
+import { calculateHeaderHeight } from '@/utils/sizeHelpers'
 
-const props = defineProps({
-  tasks: {
-    type: Array,
-    required: true,
-  },
-})
+const props = defineProps<{
+  tasks: Array<Task>,
+  settings: Settings
+}>()
 
-const flattenTasks = (tasks, result = []) => {
+const flattenTasks = (tasks: Array<Task>, result: Array<Task> = []) => {
   tasks.forEach(task => {
     result.push(task)
     if (task.subtasks && task.subtasks.length > 0) {
@@ -19,10 +20,14 @@ const flattenTasks = (tasks, result = []) => {
   return result
 }
 
+const headerHeight = computed(() => {
+  return calculateHeaderHeight(props.settings.dateDisplay)
+})
+
 const allTasks = computed(() => flattenTasks(props.tasks))
 
 const dateRange = computed(() => {
-  const dates = []
+  const dates:Array<any> = []
 
   allTasks.value.forEach(task => {
     if (task.planned[0]) dates.push(parseISO(task.planned[0]))
@@ -66,7 +71,7 @@ const timelineColumns = computed(() => {
   return columns
 })
 
-const getTaskPosition = (task) => {
+const getTaskPosition = (task: Task) => {
   if (!task.planned[0] || !task.planned[1]) return null
 
   const startDate = parseISO(task.planned[0])
@@ -85,7 +90,7 @@ const getTaskPosition = (task) => {
   }
 }
 
-const getActualPosition = (task) => {
+const getActualPosition = (task: Task) => {
   if (!task.actual[0]) return null
 
   const startDate = parseISO(task.actual[0])
@@ -107,10 +112,56 @@ const getActualPosition = (task) => {
 
 <template>
   <div class="gantt-container overflow-x-auto border rounded-lg">
-    <div class="min-w-[800px]">
+    <!-- <div class="min-w-[800px] flex flex-row"> -->
+    <div class="flex flex-row">
+      <!-- No. column -->
+      <div
+        class="flex-shrink-0 border-r flex flex-col"
+      >
+        <div
+          class="font-semibold p-2 inline-flex justify-center items-end"
+          :style="{ height: headerHeight + 'px' }"
+        >No.</div>
+        <div v-for="(task,tIdx) in allTasks" :key="task.id" class="flex items-center justify-center p-2 border-t" :style="{ height: dateHeaderHeight + 'px' }">
+          <span class="truncate">{{ tIdx + 1 }}</span>
+        </div>
+      </div>
+      <!-- Tasks column -->
+      <div
+        class="w-48 flex-shrink-0 border-r flex flex-col"
+      >
+        <div
+          class="font-semibold p-2 inline-flex justify-start items-end"
+          :style="{ height: headerHeight + 'px' }"
+        >Tasks</div>
+        <div v-for="task in allTasks" :key="task.id" class="flex items-center p-2 border-t" :style="{ height: dateHeaderHeight + 'px' }">
+          <span class="truncate">{{ task.name }}</span>
+        </div>
+      </div>
+      <!-- Timeline column -->
+      <div class="flex flex-col overflow-x-auto flex-1">
+        <div
+          class="flex flex-row p-0.5 items-center bg-muted/50 text-xs font-bold"
+          :style="{ height: dateHeaderHeight + 'px' }"
+        >Year</div>
+        <div
+          class="flex flex-row p-0.5 items-center bg-muted/50 text-xs font-bold"
+          :style="{ height: dateHeaderHeight + 'px' }"
+        >Month</div>
+        <div
+          class="inline-flex flex-row p-0.5 items-center bg-muted/50 text-xs"
+          :style="{ height: dateHeaderHeight + 'px' }"
+        >
+          <div
+            class="flex-shrink-0 flex items-center justify-center"
+            v-for="d in 40"
+            :key="d"
+            :style="{ width: settings.columnWidth + 'px' }"
+          >{{ d }}</div>
+        </div>
+      </div>
       <!-- Timeline header -->
-      <div class="flex border-b bg-muted/50">
-        <div class="w-48 flex-shrink-0 p-2 font-medium border-r">Tasks</div>
+      <!-- <div class="flex flex-col border-b bg-muted/50">
         <div class="flex-1 flex">
           <div
             v-for="col in timelineColumns"
@@ -121,41 +172,41 @@ const getActualPosition = (task) => {
             {{ col.label }}
           </div>
         </div>
-      </div>
+      </div> -->
 
       <!-- Task rows -->
-      <div
+      <!-- <div
         v-for="task in allTasks"
         :key="task.id"
         class="flex border-b hover:bg-muted/30"
-      >
-        <div class="w-48 flex-shrink-0 p-2 border-r flex items-center">
+      > -->
+        <!-- <div class="w-48 flex-shrink-0 p-2 border-r flex items-center">
           <span class="text-sm truncate">{{ task.name }}</span>
-        </div>
-        <div class="flex-1 relative h-12">
+        </div> -->
+        <!-- <div class="flex-1 relative h-12"> -->
           <!-- Planned bar -->
-          <div
+          <!-- <div
             v-if="getTaskPosition(task)"
             :style="{
-              left: getTaskPosition(task).left,
-              width: getTaskPosition(task).width,
-              backgroundColor: getTaskPosition(task).color,
+              left: getTaskPosition(task)!.left,
+              width: getTaskPosition(task)!.width,
+              backgroundColor: getTaskPosition(task)!.color,
               opacity: '0.3'
             }"
             class="absolute top-2 h-3 rounded-sm"
-          />
+          /> -->
           <!-- Actual bar -->
-          <div
+          <!-- <div
             v-if="getActualPosition(task)"
             :style="{
-              left: getActualPosition(task).left,
-              width: getActualPosition(task).width,
-              backgroundColor: getActualPosition(task).color
+              left: getActualPosition(task)!.left,
+              width: getActualPosition(task)!.width,
+              backgroundColor: getActualPosition(task)!.color
             }"
             class="absolute top-6 h-3 rounded-sm"
-          />
-        </div>
-      </div>
+          /> -->
+        <!-- </div> -->
+      <!-- </div> -->
     </div>
   </div>
 </template>
