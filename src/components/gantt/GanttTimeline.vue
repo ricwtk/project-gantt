@@ -2,8 +2,9 @@
 import { computed } from 'vue'
 import { parseISO, differenceInDays, addDays, format, startOfMonth, endOfMonth } from 'date-fns'
 import type { Settings, Task } from '@/types'
-import { dateHeaderHeight } from '@/constants'
 import { calculateHeaderHeight } from '@/utils/sizeHelpers'
+import GanttTimelineHeader from '@/components/gantt/GanttTimelineHeader.vue'
+import GanttTimelineBar from '@/components/gantt/GanttTimelineBar.vue'
 
 const props = defineProps<{
   tasks: Array<Task>,
@@ -48,11 +49,58 @@ const dateRange = computed(() => {
   const minDate = new Date(Math.min(...dates))
   const maxDate = new Date(Math.max(...dates))
 
-  const start = startOfMonth(minDate)
-  const end = endOfMonth(maxDate)
+  const start = minDate //startOfMonth(minDate)
+  const end = maxDate //endOfMonth(maxDate)
   const days = differenceInDays(end, start) + 1
 
   return { start, end, days }
+})
+
+interface TimelineHeader {
+  year: TimelineHeaderColumn[];
+  month: TimelineHeaderColumn[];
+  day: TimelineHeaderColumn[];
+}
+
+interface TimelineHeaderColumn {
+  date: string;
+  label: string;
+  columns: number;
+  isWeekend: boolean;
+}
+
+const timelineHeader = computed(() => {
+  const header: TimelineHeader = {
+    year: [],
+    month: [],
+    day: []
+  }
+  let currentDate = dateRange.value.start
+
+  for (let i = 0; i < dateRange.value.days; i++) {
+    for (const key in header) {
+      let currentLabel = format(currentDate, key === 'year' ? 'yyyy' : key === 'month' ? 'MMM' : 'dd')
+      let last_column = header[key].length > 0 ? header[key][header[key].length - 1] : null
+      if (last_column && last_column.label == currentLabel) {
+        last_column.columns += 1
+      } else {
+        header[key].push({
+          date: currentDate,
+          label: currentLabel,
+          columns: 1,
+          isWeekend: currentDate.getDay() === 0 || currentDate.getDay() === 6
+        })
+      }
+    }
+    // header.push({
+    //   date: format(currentDate, 'yyyy-MM-dd'),
+    //   label: format(currentDate, 'MMM dd'),
+    //   isWeekend: currentDate.getDay() === 0 || currentDate.getDay() === 6,
+    // })
+    currentDate = addDays(currentDate, 1)
+  }
+
+  return header
 })
 
 const timelineColumns = computed(() => {
@@ -122,7 +170,7 @@ const getActualPosition = (task: Task) => {
           class="font-semibold p-2 inline-flex justify-center items-end"
           :style="{ height: headerHeight + 'px' }"
         >No.</div>
-        <div v-for="(task,tIdx) in allTasks" :key="task.id" class="flex items-center justify-center p-2 border-t" :style="{ height: dateHeaderHeight + 'px' }">
+        <div v-for="(task,tIdx) in allTasks" :key="task.id" class="flex items-center justify-center p-2 border-t" :style="{ height: settings.rowHeight + 'px' }">
           <span class="truncate">{{ tIdx + 1 }}</span>
         </div>
       </div>
@@ -134,45 +182,28 @@ const getActualPosition = (task: Task) => {
           class="font-semibold p-2 inline-flex justify-start items-end"
           :style="{ height: headerHeight + 'px' }"
         >Tasks</div>
-        <div v-for="task in allTasks" :key="task.id" class="flex items-center p-2 border-t" :style="{ height: dateHeaderHeight + 'px' }">
+        <div v-for="task in allTasks"
+          :key="task.id"
+          class="flex items-center p-2 border-t"
+          :style="{ height: settings.rowHeight + 'px' }"
+        >
           <span class="truncate">{{ task.name }}</span>
         </div>
       </div>
       <!-- Timeline column -->
       <div class="flex flex-col overflow-x-auto flex-1">
-        <div
-          class="flex flex-row p-0.5 items-center bg-muted/50 text-xs font-bold"
-          :style="{ height: dateHeaderHeight + 'px' }"
-        >Year</div>
-        <div
-          class="flex flex-row p-0.5 items-center bg-muted/50 text-xs font-bold"
-          :style="{ height: dateHeaderHeight + 'px' }"
-        >Month</div>
-        <div
-          class="inline-flex flex-row p-0.5 items-center bg-muted/50 text-xs"
-          :style="{ height: dateHeaderHeight + 'px' }"
-        >
-          <div
-            class="flex-shrink-0 flex items-center justify-center"
-            v-for="d in 40"
-            :key="d"
-            :style="{ width: settings.columnWidth + 'px' }"
-          >{{ d }}</div>
-        </div>
+        <GanttTimelineHeader
+          :settings="settings"
+          :dateRange="dateRange"
+        />
+        <GanttTimelineBar
+          v-for="task in allTasks"
+          :key="task.id"
+          :task="task"
+          :settings="settings"
+          :dateRange="dateRange"
+        />
       </div>
-      <!-- Timeline header -->
-      <!-- <div class="flex flex-col border-b bg-muted/50">
-        <div class="flex-1 flex">
-          <div
-            v-for="col in timelineColumns"
-            :key="col.date"
-            class="flex-1 p-2 text-xs text-center border-r"
-            :class="{ 'bg-muted': col.isWeekend }"
-          >
-            {{ col.label }}
-          </div>
-        </div>
-      </div> -->
 
       <!-- Task rows -->
       <!-- <div
