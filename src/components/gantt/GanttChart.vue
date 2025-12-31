@@ -25,33 +25,61 @@ import ChartDialog from './ChartDialog.vue'
 const ganttStore = useGanttStore()
 
 const selectedTask = ref(null)
+const parentTaskId = ref(null)
 const showTaskDialog = ref(false)
 const showChartDialog = ref(false)
 const editingChart = ref(null)
-const showChartSettings = ref(false)
 
-const handleAddTask = () => {
+const handleAddTask = (chartId) => {
+  ganttStore.setActiveChart(chartId)
   selectedTask.value = null
+  parentTaskId.value = null
   showTaskDialog.value = true
 }
 
-const handleEditTask = (task) => {
-  selectedTask.value = task
+const handleAddSubtask = (chartId, taskId) => {
+  ganttStore.setActiveChart(chartId)
+  selectedTask.value = null
+  parentTaskId.value = taskId
   showTaskDialog.value = true
 }
+
+const handleEditTask = (chartId, task) => {
+  ganttStore.setActiveChart(chartId)
+  selectedTask.value = task
+  parentTaskId.value = null
+  showTaskDialog.value = true
+}
+
 
 const handleTaskSaved = (taskData) => {
   if (selectedTask.value) {
+    // Update existing task
     ganttStore.updateTask(selectedTask.value.id, taskData)
   } else {
-    ganttStore.addTask()
-    const newTask = ganttStore.tasks[ganttStore.tasks.length - 1]
+    // Add new task or subtask
+    ganttStore.addTask(parentTaskId.value)
+
+    // Get the newly created task
+    let newTask
+    if (parentTaskId.value) {
+      const parent = ganttStore.findTask(parentTaskId.value)
+      newTask = parent.subtasks[parent.subtasks.length - 1]
+    } else {
+      newTask = ganttStore.tasks[ganttStore.tasks.length - 1]
+    }
+
+    // Update with user-provided data
     ganttStore.updateTask(newTask.id, taskData)
   }
+
   showTaskDialog.value = false
+  selectedTask.value = null
+  parentTaskId.value = null
 }
 
-const handleDeleteTask = (taskId) => {
+const handleDeleteTask = (chartId, taskId) => {
+  ganttStore.setActiveChart(chartId)
   if (confirm('Are you sure you want to delete this task?')) {
     ganttStore.deleteTask(taskId)
   }
@@ -158,7 +186,7 @@ const handleTabChange = (chartId) => {
           {{ chart.tasks.length }} task{{ chart.tasks.length !== 1 ? 's' : '' }}
         </CardDescription>
         <CardAction>
-          <Button @click="handleAddTask" size="sm">
+          <Button @click="handleAddTask(chart.id)" size="sm">
             <Plus class="w-4 h-4 mr-2" />
             Add Task
           </Button>
@@ -197,8 +225,9 @@ const handleTabChange = (chartId) => {
             v-for="task in chart.tasks"
             :key="task.id"
             :task="task"
-            @edit="handleEditTask"
-            @delete="handleDeleteTask"
+            @edit="handleEditTask(chart.id, $event)"
+            @delete="handleDeleteTask(chart.id, $event)"
+            @addSubtask="handleAddSubtask(chart.id, $event)"
           />
         </div>
 
