@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { format, addDays } from 'date-fns'
-import { Settings } from '@/types'
+import type { Settings } from '@/types'
 import { dateHeaderHeight } from '@/constants'
 
 const props = defineProps<{
@@ -20,7 +20,7 @@ interface TimelineHeader {
 }
 
 interface TimelineHeaderColumn {
-  date: string;
+  date: Date;
   label: string;
   columns: number;
   isWeekend: boolean;
@@ -36,12 +36,13 @@ const timelineHeader = computed(() => {
 
   for (let i = 0; i < props.dateRange.days; i++) {
     for (const key in header) {
+      let headerRow: TimelineHeaderColumn[] = header[key as keyof TimelineHeader];
       let currentLabel = format(currentDate, key === 'year' ? 'yyyy' : key === 'month' ? 'MMM' : 'dd')
-      let last_column = header[key].length > 0 ? header[key][header[key].length - 1] : null
+      let last_column = headerRow.length > 0 ? headerRow[headerRow.length - 1] : null
       if (last_column && last_column.label == currentLabel) {
         last_column.columns += 1
       } else {
-        header[key].push({
+        headerRow.push({
           date: currentDate,
           label: currentLabel,
           columns: 1,
@@ -65,7 +66,7 @@ const timelineHeader = computed(() => {
     <div
       class="flex-shrink-0 flex items-center justify-start px-2"
       v-for="year in timelineHeader['year']"
-      :key="year.date"
+      :key="year.date.toISOString()"
       :style="{ width: settings.columnWidth * year.columns + 'px' }"
     >{{ year.label }}</div>
   </div>
@@ -77,7 +78,7 @@ const timelineHeader = computed(() => {
     <div
       class="flex-shrink-0 flex items-center justify-start px-2"
       v-for="month in timelineHeader['month']"
-      :key="month.date"
+      :key="month.date.toISOString()"
       :style="{ width: settings.columnWidth * month.columns + 'px' }"
     >{{ month.label }}</div>
   </div>
@@ -89,7 +90,7 @@ const timelineHeader = computed(() => {
       class="flex-shrink-0 flex items-center justify-center"
       :class="{ 'bg-muted': day.isWeekend }"
       v-for="day in timelineHeader['day']"
-      :key="day.date"
+      :key="day.date.toISOString()"
       :style="{ width: settings.columnWidth * day.columns + 'px' }"
     >{{ day.label }}</div>
   </div>

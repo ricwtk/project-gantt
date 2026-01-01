@@ -16,7 +16,7 @@ const props = defineProps({
 
 const emit = defineEmits(['edit', 'delete', 'add-subtask'])
 
-const isCollapsed = ref(props.task.collapsed || false)
+const isCollapsed = ref(props.task.collapsed.tasklist || false)
 
 const toggleCollapse = () => {
   isCollapsed.value = !isCollapsed.value

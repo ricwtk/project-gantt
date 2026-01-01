@@ -14,7 +14,7 @@ export interface Task {
   planned: [string, string]
   actual: [string, string]
   subtasks: Task[]
-  collapsed: boolean
+  collapsed: { timeline: boolean, tasklist: boolean }
   color: string | null
 }
 

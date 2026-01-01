@@ -136,7 +136,10 @@ export const useGanttStore = defineStore('gantt', () => {
       planned: [format(new Date(), 'yyyy-MM-dd'), format(new Date(), 'yyyy-MM-dd')],
       actual: ['', ''],
       subtasks: [],
-      collapsed: false,
+      collapsed: {
+        timeline: false,
+        tasklist: false,
+      },
       color: null,
     }
 
@@ -156,6 +159,22 @@ export const useGanttStore = defineStore('gantt', () => {
     const task = findTask(taskId)
     if (task) {
       Object.assign(task, updates)
+      markModified()
+    }
+  }
+
+  function toggleTaskTimelineCollapse(taskId: string): void {
+    const task = findTask(taskId)
+    if (task) {
+      task.collapsed.timeline = !task.collapsed.timeline
+      markModified()
+    }
+  }
+
+  function toggleTaskTasklistCollapse(taskId: string): void {
+    const task = findTask(taskId)
+    if (task) {
+      task.collapsed.tasklist = !task.collapsed.tasklist
       markModified()
     }
   }
@@ -287,6 +306,8 @@ export const useGanttStore = defineStore('gantt', () => {
     duplicateChart,
     addTask,
     updateTask,
+    toggleTaskTimelineCollapse,
+    toggleTaskTasklistCollapse,
     deleteTask,
     findTask,
     setCurrentFile,

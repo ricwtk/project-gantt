@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue';
-import { Task, Settings } from '@/types';
+import type { Task, Settings } from '@/types';
 import { parseISO, differenceInDays } from 'date-fns';
 import { defaultTaskColor, plannedBarHeight, actualBarHeight, defaultActualBarColor } from '@/constants';
 import { TinyColor } from '@ctrl/tinycolor';
@@ -96,5 +96,14 @@ const actualBarStart = computed(() => {
           }"
        ></div>
     </div>
-</div>
+  </div>
+  <template v-if="task.subtasks && task.subtasks.length > 0 && !task.collapsed.timeline">
+    <GanttTimelineBar
+      v-for="subtask in props.task.subtasks"
+      :key="subtask.id"
+      :task="subtask"
+      :settings="settings"
+      :dateRange="dateRange"
+    />
+  </template>
 </template>

@@ -36,7 +36,6 @@ const props = withDefaults(defineProps<Props>(), {
   open: false,
   chartName: null,
   chartSettings: {
-    name: '',
     dateDisplay: ['year', 'month', 'day'],
     colorScheme: 'Set3',
     rowHeight: 40,
@@ -110,13 +109,13 @@ const dateDisplayOptions = [
   { value: 'month', label: 'Month' },
   { value: 'day', label: 'Day' },
 ]
-const toggleDateDisplay = (value: string): void => {
-  if (currentSettings.value.dateDisplay.includes(value)) {
-    currentSettings.value.dateDisplay = currentSettings.value.dateDisplay.filter((v) => v !== value)
-  } else {
-    currentSettings.value.dateDisplay.push(value)
-  }
-}
+// const toggleDateDisplay = (value: string): void => {
+//   if (currentSettings.value.dateDisplay.includes(value)) {
+//     currentSettings.value.dateDisplay = currentSettings.value.dateDisplay.filter((v) => v !== value)
+//   } else {
+//     currentSettings.value.dateDisplay.push(value)
+//   }
+// }
 
 const headerHeight = computed(() => calculateHeaderHeight(currentSettings.value.dateDisplay))
 

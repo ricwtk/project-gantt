@@ -51,6 +51,12 @@ const handleEditTask = (chartId, task) => {
   showTaskDialog.value = true
 }
 
+const handleToggleTaskTimelineCollapse = (chartId, taskId) => {
+  ganttStore.setActiveChart(chartId)
+  ganttStore.toggleTaskTimelineCollapse(taskId);
+
+  // console.log(chartId, 'update:collapsed', taskId, collapsed);
+};
 
 const handleTaskSaved = (taskData) => {
   if (selectedTask.value) {
@@ -233,7 +239,11 @@ const handleTabChange = (chartId) => {
 
         <div v-if="chart.tasks.length > 0" class="mt-8">
           <h3 class="text-lg font-semibold mb-4">Timeline</h3>
-          <GanttTimeline :tasks="chart.tasks" :settings="chart.settings" />
+          <GanttTimeline
+            :tasks="chart.tasks"
+            :settings="chart.settings"
+            @update:collapsed="handleToggleTaskTimelineCollapse(chart.id, $event)"
+          />
         </div>
       </CardContent>
     </Card>
