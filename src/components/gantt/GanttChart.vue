@@ -214,6 +214,9 @@ const handleTabChange = (chartId) => {
             :tasks="chart.tasks"
             :settings="chart.settings"
             @update:collapsed="handleToggleTaskTimelineCollapse(chart.id, $event)"
+            @edit="handleEditTask(chart.id, $event)"
+            @delete="handleDeleteTask(chart.id, $event)"
+            @addSubtask="handleAddSubtask(chart.id, $event)"
           />
         </div>
 

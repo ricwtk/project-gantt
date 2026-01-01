@@ -15,6 +15,9 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   (e: 'update:collapsed', taskId: string): void
+  (e: 'edit', task: Task): void
+  (e: 'delete', taskId: string): void
+  (e: 'add-subtask', taskId: string): void
 }>()
 
 const flattenTasks = (tasks: Array<Task>, result: Array<Task> = []) => {
@@ -102,6 +105,9 @@ const handleToggleTaskCollapse = (taskId: string) => {
           :task="task"
           :settings="settings"
           @update:collapsed="handleToggleTaskCollapse"
+          @edit="$emit('edit', $event)"
+          @delete="$emit('delete', $event)"
+          @add-subtask="$emit('add-subtask', $event)"
         />
       </div>
       <!-- Timeline column -->
