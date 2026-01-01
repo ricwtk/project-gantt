@@ -58,6 +58,11 @@ const handleToggleTaskTimelineCollapse = (chartId, taskId) => {
   // console.log(chartId, 'update:collapsed', taskId, collapsed);
 };
 
+const handleToggleTaskTasklistCollapse = (chartId, taskId) => {
+  ganttStore.setActiveChart(chartId)
+  ganttStore.toggleTaskTasklistCollapse(taskId);
+};
+
 const handleTaskSaved = (taskData) => {
   if (selectedTask.value) {
     // Update existing task
@@ -234,6 +239,7 @@ const handleTabChange = (chartId) => {
             @edit="handleEditTask(chart.id, $event)"
             @delete="handleDeleteTask(chart.id, $event)"
             @addSubtask="handleAddSubtask(chart.id, $event)"
+            @update:collapsed="handleToggleTaskTasklistCollapse(chart.id, $event)"
           />
         </div>
 

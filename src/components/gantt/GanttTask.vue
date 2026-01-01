@@ -1,25 +1,27 @@
-<script setup>
+<script setup lang="ts">
 import { ref } from 'vue'
 import { Button } from '@/components/ui/button'
 import { ChevronDown, ChevronRight, Edit, Trash2, Plus } from 'lucide-vue-next'
+import type { Task } from '@/types'
 
-const props = defineProps({
-  task: {
-    type: Object,
-    required: true,
-  },
-  level: {
-    type: Number,
-    default: 0,
-  },
+interface Props {
+  task: Task;
+  level?: number;
+}
+const props = withDefaults(defineProps<Props>(), {
+  level: 0,
 })
 
-const emit = defineEmits(['edit', 'delete', 'add-subtask'])
+interface Emits {
+  (event: 'edit', task: Task): void;
+  (event: 'delete', taskId: string): void;
+  (event: 'add-subtask', taskId: string): void;
+  (event: 'update:collapsed', taskId: string): void;
+}
+const emit = defineEmits<Emits>()
 
-const isCollapsed = ref(props.task.collapsed.tasklist || false)
-
-const toggleCollapse = () => {
-  isCollapsed.value = !isCollapsed.value
+const handleToggleCollapse = () => {
+  emit('update:collapsed', props.task.id)
 }
 
 const handleEdit = () => {
@@ -44,9 +46,9 @@ const handleAddSubtask = () => {
           variant="ghost"
           size="icon"
           class="h-6 w-6 mr-1"
-          @click="toggleCollapse"
+          @click="handleToggleCollapse"
         >
-          <ChevronRight v-if="isCollapsed" class="w-4 h-4" />
+          <ChevronRight v-if="task.collapsed.tasklist" class="w-4 h-4" />
           <ChevronDown v-else class="w-4 h-4" />
         </Button>
 
@@ -90,7 +92,7 @@ const handleAddSubtask = () => {
       </div>
     </div>
 
-    <div v-if="task.subtasks && task.subtasks.length > 0 && !isCollapsed">
+    <div v-if="task.subtasks && task.subtasks.length > 0 && !task.collapsed.tasklist">
       <GanttTask
         v-for="subtask in task.subtasks"
         :key="subtask.id"
@@ -99,6 +101,7 @@ const handleAddSubtask = () => {
         @edit="$emit('edit', $event)"
         @delete="$emit('delete', $event)"
         @add-subtask="$emit('add-subtask', $event)"
+        @update:collapsed="$emit('update:collapsed', $event)"
       />
     </div>
   </div>
