@@ -204,27 +204,20 @@ const handleTabChange = (chartId) => {
         </CardAction>
       </CardHeader>
 
-      <CardContent>
-        <div class="flex items-center justify-between mb-4">
-          <div>
-            <p class="text-sm text-muted-foreground">
-
-            </p>
-          </div>
-          <div class="flex space-x-2">
-
-            <!-- <Button @click="handleShowSettings(chart.id)" size="sm">
-              <Settings class="w-4 h-4 mr-2" />
-              Settings
-            </Button> -->
-          </div>
-        </div>
-
+      <CardContent class="space-y-4">
         <div v-if="chart.tasks.length === 0" class="text-center py-8 text-muted-foreground">
           No tasks yet. Click "Add Task" to get started.
         </div>
 
-        <div v-else class="space-y-2">
+        <div v-if="chart.tasks.length > 0" class="space-y-2">
+          <GanttTimeline
+            :tasks="chart.tasks"
+            :settings="chart.settings"
+            @update:collapsed="handleToggleTaskTimelineCollapse(chart.id, $event)"
+          />
+        </div>
+
+        <div v-if="chart.tasks.length > 0" class="space-y-2 mt-8">
           <div class="grid grid-cols-12 gap-4 font-medium text-sm border-b pb-2">
             <div class="col-span-4">Task</div>
             <div class="col-span-3">Planned</div>
@@ -243,14 +236,7 @@ const handleTabChange = (chartId) => {
           />
         </div>
 
-        <div v-if="chart.tasks.length > 0" class="mt-8">
-          <h3 class="text-lg font-semibold mb-4">Timeline</h3>
-          <GanttTimeline
-            :tasks="chart.tasks"
-            :settings="chart.settings"
-            @update:collapsed="handleToggleTaskTimelineCollapse(chart.id, $event)"
-          />
-        </div>
+
       </CardContent>
     </Card>
 
