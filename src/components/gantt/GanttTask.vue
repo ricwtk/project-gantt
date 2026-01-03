@@ -3,6 +3,7 @@ import { ref } from 'vue'
 import { Button } from '@/components/ui/button'
 import { ChevronDown, ChevronRight, Edit, Trash2, Plus } from 'lucide-vue-next'
 import type { Task } from '@/types'
+import draggable from 'vuedraggable'
 
 interface Props {
   task: Task;
@@ -19,6 +20,8 @@ interface Emits {
   (event: 'update:collapsed', taskId: string): void;
 }
 const emit = defineEmits<Emits>()
+
+const drag = ref(false)
 
 const handleToggleCollapse = () => {
   emit('update:collapsed', props.task.id)
@@ -92,8 +95,27 @@ const handleAddSubtask = () => {
       </div>
     </div>
 
-    <div v-if="task.subtasks && task.subtasks.length > 0 && !task.collapsed.tasklist">
-      <GanttTask
+    <!-- <div v-if="task.subtasks && task.subtasks.length > 0 && !task.collapsed.tasklist"> -->
+      <draggable
+        v-model="task.subtasks"
+        group="tasks"
+        item-key="id"
+        @start="drag = true"
+        @end="drag = false"
+      >
+        <template #item="{ element }">
+          <GanttTask v-if="!task.collapsed.tasklist"
+            :key="element.id"
+            :task="element"
+            :level="level + 1"
+            @edit="$emit('edit', $event)"
+            @delete="$emit('delete', $event)"
+            @add-subtask="$emit('add-subtask', $event)"
+            @update:collapsed="$emit('update:collapsed', $event)"
+          />
+        </template>
+      </draggable>
+      <!-- <GanttTask
         v-for="subtask in task.subtasks"
         :key="subtask.id"
         :task="subtask"
@@ -102,7 +124,7 @@ const handleAddSubtask = () => {
         @delete="$emit('delete', $event)"
         @add-subtask="$emit('add-subtask', $event)"
         @update:collapsed="$emit('update:collapsed', $event)"
-      />
-    </div>
+      /> -->
+    <!-- </div> -->
   </div>
 </template>

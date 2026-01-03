@@ -21,6 +21,7 @@ import GanttTask from './GanttTask.vue'
 import GanttTimeline from './GanttTimeline.vue'
 import TaskDialog from './TaskDialog.vue'
 import ChartDialog from './ChartDialog.vue'
+import draggable from 'vuedraggable'
 
 const ganttStore = useGanttStore()
 
@@ -29,6 +30,8 @@ const parentTaskId = ref(null)
 const showTaskDialog = ref(false)
 const showChartDialog = ref(false)
 const editingChart = ref(null)
+
+const drag = ref(false)
 
 const handleAddTask = (chartId) => {
   ganttStore.setActiveChart(chartId)
@@ -228,7 +231,26 @@ const handleTabChange = (chartId) => {
             <div class="col-span-2">Actions</div>
           </div>
 
-          <GanttTask
+          <draggable
+            v-model="chart.tasks"
+            group="tasks"
+            item-key="id"
+            @start="drag = true"
+            @end="drag = false"
+          >
+            <template #item="{ element }">
+              <GanttTask
+                :key="element.id"
+                :task="element"
+                @edit="handleEditTask(chart.id, $event)"
+                @delete="handleDeleteTask(chart.id, $event)"
+                @addSubtask="handleAddSubtask(chart.id, $event)"
+                @update:collapsed="handleToggleTaskTasklistCollapse(chart.id, $event)"
+              />
+            </template>
+          </draggable>
+
+          <!-- <GanttTask
             v-for="task in chart.tasks"
             :key="task.id"
             :task="task"
@@ -236,7 +258,7 @@ const handleTabChange = (chartId) => {
             @delete="handleDeleteTask(chart.id, $event)"
             @addSubtask="handleAddSubtask(chart.id, $event)"
             @update:collapsed="handleToggleTaskTasklistCollapse(chart.id, $event)"
-          />
+          /> -->
         </div>
 
 
