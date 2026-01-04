@@ -7,6 +7,7 @@ import GanttTimelineHeader from '@/components/gantt/GanttTimelineHeader.vue'
 import GanttTimelineBar from '@/components/gantt/GanttTimelineBar.vue'
 import GanttTimelineLabel from '@/components/gantt/GanttTimelineLabel.vue'
 import GanttTimelineIndex from '@/components/gantt/GanttTimelineIndex.vue'
+import { useDrag } from '@/composables/useDrag'
 
 const props = defineProps<{
   tasks: Array<Task>,
@@ -18,6 +19,12 @@ const emit = defineEmits<{
   (e: 'edit', task: Task): void
   (e: 'delete', taskId: string): void
   (e: 'add-subtask', taskId: string): void
+  // (e: 'drag-start', taskId: string): void
+  // (e: 'drag-enter', taskId: string): void
+  // (e: 'drag-leave', taskId: string): void
+  // (e: 'drag-end', taskId: string): void
+  // (e: 'drop', taskId: string): void
+  (e: string, payload: any): void
 }>()
 
 const flattenTasks = (tasks: Array<Task>, result: Array<Task> = []) => {
@@ -69,6 +76,22 @@ const handleToggleTaskCollapse = (taskId: string) => {
   emit('update:collapsed', taskId);
 };
 
+const emitHelper = (event: string, payload: any) => {
+  emit(event, payload);
+};
+
+const {
+  isDragging,
+  handleDragStart,
+  handleDragOver,
+  handleDragEnter,
+  handleDragLeave,
+  handleDrop,
+  handleDragEnd,
+  isBeingDragged,
+  getDropIndicatorClass
+} = useDrag(emit);
+
 </script>
 
 <template>
@@ -108,8 +131,20 @@ const handleToggleTaskCollapse = (taskId: string) => {
           @edit="$emit('edit', $event)"
           @delete="$emit('delete', $event)"
           @add-subtask="$emit('add-subtask', $event)"
+          @dragstart="console.log"
+          @dragend="console.log"
+          @dragover="console.log"
+          @dragenter="console.log"
+          @dragleave="console.log"
+          @dragdrop="console.log"
         />
       </div>
+      <!-- @dragstart="handleDragStart(task.id)"
+      @dragover="handleDragOver($event, task.id)"
+      @dragenter="handleDragEnter($event, task.id)"
+      @dragleave="handleDragLeave($event, task.id)"
+      @drop="handleDrop($event, task.id)"
+      @dragend="handleDragEnd" -->
       <!-- Timeline column -->
       <div class="flex flex-col overflow-x-auto flex-1">
         <GanttTimelineHeader

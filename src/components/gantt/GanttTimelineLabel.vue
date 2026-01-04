@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { Task, Settings } from '@/types';
-import { ref, watch } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronDown, MoreVertical, Edit, Plus, Trash2 } from 'lucide-vue-next';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
@@ -19,6 +19,12 @@ interface Emits {
   (e: 'edit', task: Task): void;
   (e: 'delete', taskId: string): void;
   (e: 'add-subtask', taskId: string): void;
+  (e: 'dragstart', data: { event: DragEvent; taskId: string }): void;
+  (e: 'dragend', data: { event: DragEvent; taskId: string }): void;
+  (e: 'dragover', data: { event: DragEvent; taskId: string }): void;
+  (e: 'dragenter', data: { event: DragEvent; taskId: string }): void;
+  (e: 'dragleave', data: { event: DragEvent; taskId: string }): void;
+  (e: 'dragdrop', data: { event: DragEvent; taskId: string }): void;
 }
 
 const emit = defineEmits<Emits>();
@@ -35,18 +41,52 @@ const handleDelete = () => {
 const handleAddSubtask = () => {
   emit('add-subtask', props.task.id)
 }
+
+const handleDragStart = (event: DragEvent) => {
+  emit('dragstart', { event, taskId: props.task.id })
+  console.log('Drag start');
+}
+const handleDragEnd = (event: DragEvent) => {
+  emit('dragend', { event, taskId: props.task.id })
+  console.log('Drag end');
+}
+const handleDragOver = (event: DragEvent) => {
+  emit('dragover', { event, taskId: props.task.id })
+  console.log('Drag over');
+}
+const handleDragEnter = (event: DragEvent) => {
+  emit('dragenter', { event, taskId: props.task.id })
+  console.log('Drag enter');
+}
+const handleDragLeave = (event: DragEvent) => {
+  emit('dragleave', { event, taskId: props.task.id })
+  console.log('Drag leave');
+}
+const handleDragDrop = (event: DragEvent) => {
+  emit('dragdrop', { event, taskId: props.task.id })
+  console.log('Drag drop');
+}
 </script>
 
 <template>
   <div
-    class="flex flex-col justify-center p-2 border-t"
+    class="flex flex-col justify-center p-2 border-t cursor-pointer"
     :style="{ height: settings.rowHeight + 'px' }"
   >
     <span
       class="flex flex-row"
       :style="{ paddingLeft: level * 24 + 'px' }"
     >
-      <span class="flex-1 truncate">{{ task.name }}</span>
+      <span
+        :draggable="true"
+        class="flex-1 truncate select-none"
+        @dragstart="handleDragStart"
+        @dragend="handleDragEnd"
+        @dragover="handleDragOver"
+        @dragenter="handleDragEnter"
+        @dragleave="handleDragLeave"
+        @drop="handleDragDrop"
+      >{{ task.name }}</span>
       <Button
         v-if="task.subtasks && task.subtasks.length > 0"
         variant="ghost"
@@ -100,6 +140,11 @@ const handleAddSubtask = () => {
       @edit="$emit('edit', $event)"
       @delete="$emit('delete', $event)"
       @add-subtask="$emit('add-subtask', $event)"
+      @dragend="$emit('dragend', $event)"
+      @dragover="$emit('dragover', $event)"
+      @dragenter="$emit('dragenter', $event)"
+      @dragleave="$emit('dragleave', $event)"
+      @dragdrop="$emit('dragdrop', $event)"
     />
   </template>
 </template>
